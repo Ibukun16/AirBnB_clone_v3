@@ -35,14 +35,14 @@ class FileStorage:
         return self.__objects
 
     def get(self, cls, id):
-        """retrieves an object based on the class and its ID else None if not found"""
+        """retrieves an object based on the class and its ID or None, if not found"""
         obj = self.__session.query(cls).get(id)
         if obj is None:
             return None
         return obj
 
     def count(self, cls=None):
-        """Count and retrieves the number of objects in storage"""
+        """Count and retrieves the number of objects in storage or all if cls is None"""
         return len(self.all(cls))
 
     def new(self, obj):
