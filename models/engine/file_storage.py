@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/piython3
 """
 Contains the FileStorage class
 """
@@ -35,14 +35,14 @@ class FileStorage:
         return self.__objects
 
     def get(self, cls, id):
-        """retrieves an object based on the class and its ID or None, if not found"""
+        """retrieves an object based on the class and its ID"""
         obj = self.__session.query(cls).get(id)
         if obj is None:
             return None
         return obj
 
     def count(self, cls=None):
-        """Count and retrieves the number of objects in storage or all if cls is None"""
+        """Count and retrieves the number of objects in storage"""
         return len(self.all(cls))
 
     def new(self, obj):
