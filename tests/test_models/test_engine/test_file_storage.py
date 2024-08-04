@@ -68,9 +68,9 @@ test_file_storage.py'])
                             "{:s} method needs a docstring".format(func[0]))
 
 
+@unittest.skipIf(models.storage_t == 'db', "not testing file storage")
 class TestFileStorage(unittest.TestCase):
     """Test the FileStorage class"""
-    @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
     def test_all_returns_dict(self):
         """Test that all returns the FileStorage.__objects attr"""
         storage = FileStorage()
@@ -78,38 +78,76 @@ class TestFileStorage(unittest.TestCase):
         self.assertEqual(type(new_dict), dict)
         self.assertIs(new_dict, storage._FileStorage__objects)
 
-    @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
     def test_new(self):
         """test that new adds an object to the FileStorage.__objects attr"""
-        storage = FileStorage()
-        save = FileStorage._FileStorage__objects
-        FileStorage._FileStorage__objects = {}
-        test_dict = {}
-        for key, value in classes.items():
-            with self.subTest(key=key, value=value):
-                instance = value()
-                instance_key = instance.__class__.__name__ + "." + instance.id
-                storage.new(instance)
-                test_dict[instance_key] = instance
-                self.assertEqual(test_dict, storage._FileStorage__objects)
-        FileStorage._FileStorage__objects = save
+        state_data = {"name": "Lagos"}
+        new_state = State(**state_data)
 
-    @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
+        models.storage.new(new_state)
+
+        session = models.storage._FileStorage__session
+
+        retrieveed_state = session.query(State).filter_by(id=new_state).first()
+
+        self.asserEqual(retrieved_state.id, new_state.id)
+        self.assertEqual(retrieved_state.name, new_state.name)
+        self.assertIsNotNone(retrieved_state)
+
     def test_save(self):
         """Test that save properly saves objects to file.json"""
+        state_data = {"name": "Ogun"}
+        new_state = State(**state_data)
+
+        models.storage.new(new_state)
+
+        models.storage.save()
+
+        session = models.storage._FileStorage__session
+
+        retrieved_state = session.quuery(State).filter_by(id=new_state).first()
+
+        self.asserEqual(retrieved_state.id, new_state.id)
+        self.assertEqual(retrieved_state.name, new_state.name)
+        self.assertIsNotNone(retrieved_state)
+
+    def test_get(self):
+        """Test that get returns an object based on a given class and id."""
         storage = FileStorage()
-        new_dict = {}
-        for key, value in classes.items():
-            instance = value()
-            instance_key = instance.__class__.__name__ + "." + instance.id
-            new_dict[instance_key] = instance
-        save = FileStorage._FileStorage__objects
-        FileStorage._FileStorage__objects = new_dict
+
+        storage.reload()
+
+        state_data = {"name": "California"}
+
+        state_instance = State(**state_data)
+        storage.new(state_instance)
         storage.save()
-        FileStorage._FileStorage__objects = save
-        for key, value in new_dict.items():
-            new_dict[key] = value.to_dict()
-        string = json.dumps(new_dict)
-        with open("file.json", "r") as f:
-            js = f.read()
-        self.assertEqual(json.loads(string), json.loads(js))
+
+        retrieved_state = storage.get(State, state_instance.id)
+
+        self.assertEqual(state_instance, retrieved_state)
+
+        fake_state_id = storage.get(State, 'fake_id')
+
+        self.assertEqual(fake_state_id, None)
+
+    def test_count(self):
+        """Test that count the number of objects based on a given class"""
+        storage = FileStorage()
+        storage.reload()
+        state_data = {"name": "Lagos"}
+        state_instance = State(**state_data)
+        storage.new(state_instance)
+
+        city_data = {"name": "Alimosho", "state_id": state_instance.id}
+
+        city_instance = City(**city_data)
+
+        storage.new(city_instance)
+
+        storage.save()
+
+        state_occurrence = storage.count(State)
+        self.assertEqual(state_occurrence, len(storage.all(State)))
+
+        all_occurrence = storage.count()
+        self.assertEqual(state_occurrence, len(storage.all()))

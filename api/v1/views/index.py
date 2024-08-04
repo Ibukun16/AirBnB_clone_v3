@@ -3,7 +3,6 @@
 File containing the index view of the API.
 '''
 from flask import jsonify
-
 from api.v1.views import app_views
 from models import storage
 from models.amenity import Amenity
@@ -28,14 +27,14 @@ def get_stats():
     '''
     Gets the number of objects for each type.
     '''
-    objects = {
-            'amenities': Amenity,
-            'cities': City,
-            'places': Place,
-            'reviews': Review,
-            'states': State,
-            'users': User
+    objs = {
+            "amenities": Amenity,
+            "cities": City,
+            "places": Place,
+            "reviews": Review,
+            "states": State,
+            "users": User
             }
-    for key, val in objects.items():
-        objects[key] = storage.count(val)
-    return jsonify(objects)
+    for key, val in objs.items():
+        objs[key] = storage.count(val)
+    return jsonify(objs)
