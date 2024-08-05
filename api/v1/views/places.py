@@ -25,7 +25,7 @@ def get_allplaces(city_id):
 
 @app_views.route('/places/<string:place_id>', methods=['GET'],
                  strict_slashes=False)
-@swag_from('documentation/state/get_id.yml', methods=['GET'])
+@swag_from('documentation/places/get_id.yml', methods=['GET'])
 def get_place(place_id):
     """ get a place by its id"""
     place = storage.get(Place, place_id)
@@ -138,7 +138,6 @@ def search_place():
         list_allplaces = [place for place in list_allplaces
                           if all([amenty in place.amenities
                                   for amenty in amenities_list])]
-
 
     places = []
     for plc in list_allplaces:
