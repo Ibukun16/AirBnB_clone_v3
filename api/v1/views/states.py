@@ -16,7 +16,7 @@ def get_all():
 
 
 @app_views.route('/states/<string:state_id>', methods=['GET'],
-        strict_slashes=False)
+                 strict_slashes=False)
 @swag_from('documentation/state/get_id.yml', methods=['GET'])
 def get_state(state_id):
     """ get state by id"""
@@ -27,7 +27,7 @@ def get_state(state_id):
 
 
 @app_views.route('/states/<string:state_id>', methods=['DELETE'],
-        strict_slashes=False)
+                 strict_slashes=False)
 @swag_from('documentation/state/delete.yml', methods=['DELETE'])
 def delete_state(state_id):
     """ delete state by id"""
@@ -39,8 +39,7 @@ def delete_state(state_id):
     return jsonify({}), 200
 
 
-@app_views.route('/states/', methods=['POST'],
-        strict_slashes=False)
+@app_views.route('/states/', methods=['POST'], strict_slashes=False)
 @swag_from('documentation/state/post.yml', methods=['POST'])
 def create_state():
     """ create new state instance """
@@ -57,7 +56,7 @@ def create_state():
 
 
 @app_views.route('/states/<string:state_id>', methods=['PUT'],
-        strict_slashes=False)
+                 strict_slashes=False)
 @swag_from('documentation/state/put.yml', methods=['PUT'])
 def update_state(state_id):
     """ post state method """
@@ -72,4 +71,4 @@ def update_state(state_id):
         if key not in ['id', 'created_at', 'updated']:
             setattr(state, key, value)
     storage.save()
-    return jsonify(state.to_dict())
+    return jsonify(state.to_dict()), 200
