@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""states route handler"""
+"""Users route handler"""
 from api.v1.views import app_views
 from flask import jsonify, abort, request, make_response
 from models import storage
