@@ -63,12 +63,12 @@ def create_newplace():
         return make_response(jsonify({"error": "Missing name"}), 400)
     response = request.get_json()
     response['city_id'] = city_id
-    user_p = storage.get(User, response['user_id'])
-    if user_p is None:
+    user_place = storage.get(User, response['user_id'])
+    if user_place is None:
         abort(404)
-    place = Place(**response)
-    place.save()
-    return jsonify(place.to_dict()), 201
+    newplace = Place(**response)
+    newplace.save()
+    return jsonify(newplace.to_dict()), 201
 
 
 @app_views.route('/places/<string:placee_id>', methods=['PUT'],
@@ -99,50 +99,50 @@ def search_place():
     placedata = request.get_json()
 
     if placedata and len(placedata):
-        states = placedata.get('states', None)
-        cities = placedata.get('cities', None)
-        amenities = placedata.get('amenities', None)
+        stayts = placedata.get('states', None)
+        cyty = placedata.get('cities', None)
+        amnyty = placedata.get('amenities', None)
 
     if not placedata or not len(placedata) or (
-            not states and
-            not cities and
-            not amenities):
-        places = storage.all(Place).values()
+            not stays and
+            not cyty and
+            not amnyty):
+        plcs = storage.all(Place).values()
         list_allplaces = []
-        for place in places:
-            list_allplaces.append(place.to_dict())
+        for pl in plcs:
+            list_allplaces.append(pl.to_dict())
         return jsonify(list_allplaces)
 
     list_allplaces = []
-    if states:
-        states_list = [storage.get(State, stateid) for stateid in states]
-        for state in states_list:
-            if state:
-                for city in state.cities:
-                    if city:
-                        for place in city.places:
-                            list_allplaces.append(place)
+    if stayts:
+        states_list = [storage.get(State, stateid) for stateid in stayts]
+        for st in states_list:
+            if st:
+                for ct in st.cyty:
+                    if ct:
+                        for pl in ct.plc:
+                            list_allplaces.append(pl)
 
-    if cities:
-        city_list = [storage.get(City, cityid) for cityid in cities]
-        for city in city_list:
-            if city:
-                for place in city.places:
-                    if place not in list_allplaces:
-                        list_allplaces.append(place)
+    if cyty:
+        city_list = [storage.get(City, cityid) for cityid in cyty]
+        for ct in city_list:
+            if ct:
+                for pl in ct.plcs:
+                    if pl not in list_allplaces:
+                        list_allplaces.append(pl)
 
-    if amenities:
+    if amnty:
         if not list_allplaces:
             list_allplaces = storage.all(Place).values()
-        amenities_list = [storage.get(Amenity, amtid) for amtid in amenities]
-        list_allplaces = [place for place in list_allplaces
-                          if all([amenty in place.amenities
-                                  for amnty in amenities_list])]
+        amenities_list = [storage.get(Amenity, amtyid) for amtyid in amnty]
+        list_allplaces = [pl for pl in list_allplaces
+                          if all([amenty in pl.amnty
+                                  for amenty in amenities_list])]
 
-    places = []
+    plcs = []
     for plc in list_allplaces:
         delet = plc.to_dict()
         delet.pop('amenities', None)
-        places.append(delet)
+        plcs.append(delet)
 
-    return jsonify(places)
+    return jsonify(plcs)
