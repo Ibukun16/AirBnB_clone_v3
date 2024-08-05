@@ -45,9 +45,9 @@ def error_400(error):
 
 
 app.config['SWAGGER'] = {"title": 'AirBnB clone - RESTful API',
-        "description": 'This api was created for the hbnb restful api project,\
-        all the documentation will be shown below',
-        "uiversion": 3}
+           "description": 'This api was created for the hbnb restful api project,\
+           all the documentation will be shown below',
+           "uiversion": 3}
 
 Swagger(app)
 
