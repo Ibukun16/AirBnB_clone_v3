@@ -49,8 +49,6 @@ def delete_city(city_id):
 @swag_from('documentation/city/post.yml', methods=['POST'])
 def create_city():
     """ create new city instance """
-    if request.content_type != 'application/json':
-        return abort(400, "Not a JSON")
     state = storage.get(State, state_id)
     if state is None:
         abort(404)

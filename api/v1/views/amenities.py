@@ -43,8 +43,6 @@ def delete_amenity(amenity_id):
 @swag_from('documentation/amenity/post.yml', methods=['POST'])
 def create_amenity():
     """ create new amenity instance """
-    if request.content_type != 'application/json':
-        return abort(400, "Not a JSON")
     if not request.get_json():
         return make_response(jsonify({"error": "Not a JSON"}), 400)
     if 'name' not in request.get_json():
@@ -60,8 +58,6 @@ def create_amenity():
 @swag_from('documentation/amenity/put.yml', methods=['PUT'])
 def update_amenity(amenity_id):
     """ update amenity method """
-    if request.content_type != 'application/json':
-        return abort(400, "Not a JSON")
     if not request.get_json():
         return make_response(jsonify({"error": "Not a JSON"}), 400)
     amenity = storage.get(Amenity, amenity_id)
