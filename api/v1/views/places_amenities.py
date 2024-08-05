@@ -44,8 +44,6 @@ def delete_amenities(place_id, amenity_id):
 @swag_from('documentation/place_amenity/post.yml', methods=['POST'])
 def update_amenities(place_id, amenity_id):
     """ update amenity list by id """
-    if request.content_type != 'application/json':
-        return abort(400, 'Not a JSON')
     place = storage.get(Place, place_id)
     if place is None:
         abort(404)
@@ -54,6 +52,6 @@ def update_amenities(place_id, amenity_id):
         abort(404)
     if amenity in place.amenities:
         return (jsonify(amenity.to_dict()), 200)
-    place.amenities.append(item)
+    place.amenities.append(obj)
     storage.save()
     return jsonify(amenity.to_dict()), 201

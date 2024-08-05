@@ -4,6 +4,7 @@ Init file to create Flask app blueprint for views module
 '''
 from flask import Blueprint
 
+
 app_views = Blueprint('app_views', __name__, url_prefix='/api/v1')
 '''The blueprint for the AirBnB clone API.'''
 
