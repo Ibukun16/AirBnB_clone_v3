@@ -1,10 +1,10 @@
 #!/usr/bin/python3
-"""states route handler"""
+"""city route handler"""
 from api.v1.views import app_views
 from flask import jsonify, abort, request, make_response
 from models import storage
 from models.state import State
-from models.state import City
+from models.city import City
 from flasgger.utils import swag_from
 
 
@@ -78,7 +78,7 @@ def update_city(city_id):
     if city is None:
         abort(404)
     for key, value in request.get_json().items():
-        if key not in ['id', 'created_at', 'updated']:
+        if key not in ['id', 'state_id', 'created_at', 'updated']:
             setattr(city, key, value)
     storage.save()
     return jsonify(city.to_dict()), 200
