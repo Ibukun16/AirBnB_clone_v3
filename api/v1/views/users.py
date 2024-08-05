@@ -43,6 +43,8 @@ def delete_user(user_id):
 @swag_from('documentation/user/post.yml', methods=['POST'])
 def create_newuser():
     """ create new user instance """
+    if request.content_type != 'application/json':
+        return abort(400, 'Not a JSON')
     if not request.get_json():
         return make_response(jsonify({"error": "Not a JSON"}), 400)
     if 'email' not in request.get_json():
@@ -60,6 +62,8 @@ def create_newuser():
 @swag_from('documentation/user/put.yml', methods=['PUT'])
 def update_user(user_id):
     """ update users list """
+    if request.content_type != 'application/json':
+        return abort(400, 'Not a JSON')
     if not request.get_json():
         return make_response(jsonify({"error": "Not a JSON"}), 400)
     user = storage.get(User, user_id)

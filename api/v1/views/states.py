@@ -43,6 +43,8 @@ def delete_state(state_id):
 @swag_from('documentation/state/post.yml', methods=['POST'])
 def create_state():
     """ create new state instance """
+    if request.content_type != 'application/json':
+        return abort(400, 'Not a JSON')
     if not request.get_json():
         return make_response(jsonify({"error": "Not a JSON"}), 400)
     if 'name' not in request.get_json():
@@ -58,6 +60,8 @@ def create_state():
 @swag_from('documentation/state/put.yml', methods=['PUT'])
 def update_state(state_id):
     """ post state method """
+    if request.content_type != 'application/json':
+        return abort(400, 'Not a JSON')
     if not request.get_json():
         return make_response(jsonify({"error": "Not a JSON"}), 400)
     state = storage.get(State, state_id)

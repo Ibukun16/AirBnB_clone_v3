@@ -49,6 +49,8 @@ def delete_city(city_id):
 @swag_from('documentation/city/post.yml', methods=['POST'])
 def create_city(state_id):
     """ create new city instance """
+    if request.content_type != 'application/json':
+        return abort(400, 'Not a JSON')
     state = storage.get(State, state_id)
     if state is None:
         abort(404)
@@ -56,8 +58,8 @@ def create_city(state_id):
         return make_response(jsonify({"error": "Not a JSON"}), 400)
     if 'name' not in request.get_json():
         return make_response(jsonify({"error": "Missing name"}), 400)
-
     response = request.get_json()
+    response['state_id'] = state_id
     city = City(**response)
     city.state_id = state.id
     city.save()
@@ -69,6 +71,8 @@ def create_city(state_id):
 @swag_from('documentation/city/put.yml', methods=['PUT'])
 def update_city(city_id):
     """ update city method """
+    if request.content_type != 'application/json':
+        return abort(400, 'Not a JSON')
     if not request.get_json():
         return make_response(jsonify({"error": "Not a JSON"}), 400)
     city = storage.get(City, city_id)
@@ -77,5 +81,5 @@ def update_city(city_id):
     for key, value in request.get_json().items():
         if key not in ['id', 'state_id', 'created_at', 'updated']:
             setattr(city, key, value)
-    storage.save()
-    return jsonify(cty.to_dict()), 200
+    city.save()
+    return jsonify(city.to_dict()), 200
