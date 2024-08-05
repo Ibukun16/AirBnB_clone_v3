@@ -43,7 +43,7 @@ def delete_place(place_id):
     if place is None:
         abort(404)
     place.delete()
-    storage.save()
+    place.save()
     return jsonify({}), 200
 
 
@@ -52,11 +52,11 @@ def delete_place(place_id):
 @swag_from('documentation/places/post.yml', methods=['POST'])
 def create_newplace():
     """ create new state instance """
+    if request.content_type != 'application/json':
+        return abort(400, 'Not a JSON')
     city = storage.get(City, city_id)
     if city is None:
         abort(404)
-    if request.content_type != 'application/json':
-        return abort(400, 'Not a JSON')
     if not request.get_json():
         return make_response(jsonify({"error": "Not a JSON"}), 400)
     if 'user_id' not in request.get_json():
@@ -77,7 +77,7 @@ def create_newplace():
                  strict_slashes=False)
 @swag_from('documentation/places/put.yml', methods=['PUT'])
 def update_place(place_id):
-    """ update place method """
+    """ get list of places as updated """
     if request.content_type != 'application/json':
         return abort(400, 'Not a JSON')
     if not request.get_json():
