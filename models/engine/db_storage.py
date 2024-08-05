@@ -62,7 +62,14 @@ class DBStorage:
         """Count and retrieves the number of objects in storage matching
         a given class or all in the storage, if no class is passes
         """
-        return len(self.all(cls))
+        if not cls:
+            return len(self.all(cls))
+        for key, value in classes.items():
+            if cls == key or cls == value:
+                param = self.all(cls)
+                return len(param)
+        if cls not in classes.values():
+            return
 
     def new(self, obj):
         """add the object to the current database session"""
