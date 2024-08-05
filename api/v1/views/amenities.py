@@ -10,7 +10,7 @@ from flasgger.utils import swag_from
 @app_views.route('/amenities', methods=['GET'], strict_slashes=False)
 @swag_from('documentation/amenity/get.yml', methods=['GET'])
 def get_all_amenities():
-    """ get all amenities by their id """
+    """ get list of all amenities by their id """
     all_amenities = [amen.to_dict() for amen in storage.all(Amenity).values()]
     return jsonify(all_amenities)
 
@@ -30,7 +30,7 @@ def get_amenity(amenity_id):
                  strict_slashes=False)
 @swag_from('documentation/state/amenity.yml', methods=['DELETE'])
 def delete_amenity(amenity_id):
-    """ delete an amenity by its id"""
+    """ delete an amenity identified by its id"""
     amenity = storage.get(Amenity, amenity_id)
     if amenity is None:
         abort(404)
@@ -51,7 +51,7 @@ def create_amenity():
         return make_response(jsonify({"error": "Missing name"}), 400)
     response = request.get_json()
     amenity = Amenity(**response)
-    state.save()
+    amenity.save()
     return jsonify(amenity.to_dict()), 201
 
 
@@ -59,7 +59,7 @@ def create_amenity():
                  strict_slashes=False)
 @swag_from('documentation/amenity/put.yml', methods=['PUT'])
 def update_amenity(amenity_id):
-    """ update amenity method """
+    """ update amenity method and get the amenity object """
     if request.content_type != 'application/json':
         return abort(400, 'Not a JSON')
     if not request.get_json():
@@ -70,5 +70,5 @@ def update_amenity(amenity_id):
     for key, value in request.get_json().items():
         if key not in ['id', 'created_at', 'updated']:
             setattr(amenity, key, value)
-    storage.save()
+    amenity.save()
     return jsonify(amenity.to_dict()), 200
