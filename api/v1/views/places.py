@@ -3,11 +3,11 @@
 from api.v1.views import app_views
 from flask import jsonify, abort, request, make_response
 from models import storage
-from models.state import State
+from models.place import Place
 from models.city import City
 from models.user import User
 from models.amenity import Amenity
-from models.place import Place
+from models.state import State
 from flasgger.utils import swag_from
 
 
@@ -19,15 +19,15 @@ def get_allplaces(city_id):
     city = storage.get(City, city_id)
     if city is None:
         abort(404)
-    all_places = [place.to_dict() for place in city.places]
-    return jsonify(all_places)
+    places = [place.to_dict() for place in city.places]
+    return jsonify(places)
 
 
 @app_views.route('/places/<string:place_id>', methods=['GET'],
                  strict_slashes=False)
 @swag_from('documentation/places/get_id.yml', methods=['GET'])
 def get_place(place_id):
-    """ get a place by its id"""
+    """ get a place by its id """
     place = storage.get(Place, place_id)
     if place is None:
         abort(404)
@@ -50,8 +50,10 @@ def delete_place(place_id):
 @app_views.route('/cities/<string:city_id>/places', methods=['POST'],
                  strict_slashes=False)
 @swag_from('documentation/places/post.yml', methods=['POST'])
-def create_newplace():
+def create_newplace(city_id):
     """ create new state instance """
+    if request.content_type != 'application/json':
+        return abort(400, 'Not a JSON')
     city = storage.get(City, city_id)
     if city is None:
         abort(404)
@@ -76,6 +78,8 @@ def create_newplace():
 @swag_from('documentation/places/put.yml', methods=['PUT'])
 def update_place(place_id):
     """ get list of places as updated """
+    if request.content_type != 'application/json':
+        return abort(400, 'Not a JSON')
     if not request.get_json():
         return make_response(jsonify({"error": "Not a JSON"}), 400)
     place = storage.get(Place, place_id)
@@ -91,7 +95,7 @@ def update_place(place_id):
 @app_views.route('/places_search', methods=['POST'],
                  strict_slashes=False)
 @swag_from('documentation/places/search.yml', methods=['POST'])
-def search_place():
+def search_places():
     """ search a place by its id """
     if request.content_type != 'application/json':
         return abort(400, 'Not a JSON')

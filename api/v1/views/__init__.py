@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 '''
-Create Flask app blueprint
+Init file to create Flask app blueprint for views module
 '''
 from flask import Blueprint
 
