@@ -1,61 +1,88 @@
 #!/usr/bin/python3
 """ Places amenities routes handler """
-import os
+#!/usr/bin/python3
+""" Places amenities routes handler """
 from api.v1.views import app_views
-from flask import abort, jsonify, make_response, request
+from flask import jsonify, abort, request
 from models import storage
-from models.amenity import Amenity
-from models.place import Place
-from flasgger.utils import swag_from
+from models import place
+from models import amenity
 
 
-@app_views.route('/places/<string:place_id>/amenities', methods=['GET'],
-                 strict_slashes=False)
-@swag_from('documentation/place_amenity/get_id.yml', methods=['GET'])
-def get_amenities(place_id):
-    """ retrieves all amenities from a place """
-    if request.content_type != 'application/json':
-        return abort(400, 'Not a JSON')
-    place = storage.get(Place, place_id)
-    if place is None:
+def check_id(cls, amenity_id):
+    """
+    If the class is not linked to any classs object, raise a 404 error
+    """
+    try:
+        get_amenity = storage.get(cls, amenity_id)
+        get_amenity.to_dict()
+    except Exception:
         abort(404)
-    amenities = [obj.to_dict() for obj in place.amenities]
+    return get_amenity
+
+
+def get_amenities(place_id):
+    """
+       Retrieves the list of all Amenity objects
+       if amenity_id is not none get a Amenity object
+    """
+    check_id(place.Place, place_id)
+    newplace = storage.get(place.Place, place_id)
+    try:
+        all_amenities = newplace.amenities
+    except Exception:
+        abort(404)
+    amenities = []
+    for obj in all_amenities:
+        amenities.append(obj.to_dict())
     return jsonify(amenities)
 
 
-@app_views.route('/places/<string:place_id>/amenities/<string:amenity_id>',
-                 methods=['DELETE'], strict_slashes=False)
-@swag_from('documentation/place_amenity/delete.yml', methods=['DELETE'])
 def delete_amenities(place_id, amenity_id):
-    """ delete amenity from place """
-    place = storage.get(Place, place_id)
-    if place is None:
-        abort(404)
-    amenity = storage.get(Amenity, amenity_id)
-    if amenity is None:
-        abort(404)
-    if amenity not in place.amenities:
-        abort(404)
-    place.amenities.remove(amenity)
-    storage.save()
-    return (jsonify({}), 200)
+    """
+        Deletes the link between Amenity object and a Place
+        Return: an empty dictionary with the status code 200
+    """
+    newplace = check_id(place.Place, place_id)
+    check_id(amenity.Amenity, amenity_id)
+    for item in range(len(newplace.amenities)):
+        if (newplace.amenities[item].id == amenity_id):
+            del(newplace.amenities[item])
+            storage.save()
+            response = {}
+            return jsonify(response), 200
+    abort(404)
 
 
-@app_views.route('/places/<string:place_id>/amenities/<string:amenity_id>',
-                 methods=['POST'], strict_slashes=False)
-@swag_from('documentation/place_amenity/post.yml', methods=['POST'])
-def update_amenities(place_id, amenity_id):
-    """ update amenity by id """
-    if request.content_type != 'application/json':
-        return abort(400, 'Not a JSON')
-    place = storage.get(Place, place_id)
-    if place is None:
-        abort(404)
-    amenity = storage.get(Amenity, amenity_id)
-    if amenity is None:
-        abort(404)
-    if amenity in place.amenities:
-        return (jsonify(amenity.to_dict()), 200)
-    place.amenities.append(obj)
+def create_amenities(place_id, amenity_id):
+    """
+        Links a amenity object
+        Return: linked amenity object
+    """
+    newplace = check_id(place.Place, place_id)
+    get_amenity = check_id(amenity.Amenity, amenity_id)
+    for item in range(len(newplace.amenities)):
+        if (newplace.amenities[item].id == amenity_id):
+            return jsonify(get_amenity.to_dict()), 200
+    newplace.amenities.append(get_amenity)
     storage.save()
-    return (jsonify(amenity.to_dict(), 201))
+    return jsonify(get_amenity.to_dict()), 201
+
+
+@app_views.route('/places/<place_id>/amenities',
+                 methods=['GET'],
+                 defaults={'amenity_id': None},
+                 strict_slashes=False)
+@app_views.route('/places/<place_id>/amenities/<amenity_id>',
+                 methods=['DELETE', 'POST'],
+                 strict_slashes=False)
+def places_amenities(place_id, amenity_id):
+    """
+        Handle amenities requests with needed functions
+    """
+    if (request.method == "GET"):
+        return get_amenities(place_id)
+    elif (request.method == "DELETE"):
+        return delete_amenities(place_id, amenity_id)
+    elif (request.method == "POST"):
+        return create_amenities(place_id, amenity_id)

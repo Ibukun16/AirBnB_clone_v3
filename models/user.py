@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 """ holds class User"""
+import hashlib
 import models
 from models.base_model import BaseModel, Base
 from os import getenv
@@ -16,8 +17,10 @@ class User(BaseModel, Base):
         password = Column(String(128), nullable=False)
         first_name = Column(String(128), nullable=True)
         last_name = Column(String(128), nullable=True)
-        places = relationship("Place", backref="user")
-        reviews = relationship("Review", backref="user")
+        places = relationship("Place", backref="user",
+                              cascade='all, delete-orphan')
+        reviews = relationship("Review", backref="user",
+                               cascade='all, delete-orphan')
     else:
         email = ""
         password = ""
@@ -27,9 +30,4 @@ class User(BaseModel, Base):
     def __init__(self, *args, **kwargs):
         """initializes user"""
         super().__init__(*args, **kwargs)
-
-    def __setattr__(self, key, val):
-        """sets user password"""
-        if key == "password":
-            val = hashlib.md5(val.encode()).hexdigest()
-        super().__setattr__(key, val)
+        self.password = hashlib.md5(self.password.encode()).hexdigest()
