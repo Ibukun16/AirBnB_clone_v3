@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""places_amenities.py"""
+""" Places amenities routes handler """
 import os
 from api.v1.views import app_views
 from flask import abort, jsonify, make_response, request
@@ -14,6 +14,8 @@ from flasgger.utils import swag_from
 @swag_from('documentation/place_amenity/get_id.yml', methods=['GET'])
 def get_amenities(place_id):
     """ retrieves all amenities from a place """
+    if request.content_type != 'application/json':
+        return abort(400, 'Not a JSON')
     place = storage.get(Place, place_id)
     if place is None:
         abort(404)
@@ -42,8 +44,10 @@ def delete_amenities(place_id, amenity_id):
 @app_views.route('/places/<string:place_id>/amenities/<string:amenity_id>',
                  methods=['POST'], strict_slashes=False)
 @swag_from('documentation/place_amenity/post.yml', methods=['POST'])
-def update_amenity(place_id, amenity_id):
-    """ post amenity by id """
+def update_amenities(place_id, amenity_id):
+    """ update amenity by id """
+    if request.content_type != 'application/json':
+        return abort(400, 'Not a JSON')
     place = storage.get(Place, place_id)
     if place is None:
         abort(404)
