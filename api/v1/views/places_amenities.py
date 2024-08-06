@@ -1,7 +1,5 @@
 #!/usr/bin/python3
-""" Places amenities routes handler """
-#!/usr/bin/python3
-""" Places amenities routes handler """
+""" Places amenities routes handler for Flask API """
 from api.v1.views import app_views
 from flask import jsonify, abort, request
 from models import storage
